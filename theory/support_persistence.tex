@@ -1,0 +1,58 @@
+\section{Universal Support Persistence}
+
+\paragraph{Setting.}
+Let \((Y,\mathcal{Y})\) be a measurable response space and \(X\) a prompt space.
+For each \(x\in X\), let \(P_\theta^x := P_\theta(\cdot\mid x)\) be a probability measure on \((Y,\mathcal{Y})\).
+Let \(H_x\in\mathcal{Y}\) be the harmful event set.
+
+Let \(A\) be an alignment operator mapping kernels to kernels, with aligned kernel
+\((AP_\theta)^x := (AP_\theta)(\cdot\mid x)\).
+
+\begin{theorem}[Universal Support Persistence]
+Assume that for every \(x\in X\),
+\[
+(AP_\theta)^x \ll P_\theta^x
+\]
+(absolute continuity with respect to \(P_\theta^x\)).
+If there exists \(x\in X\) such that \(P_\theta^x(H_x)>0\) and
+\[
+\frac{d(AP_\theta)^x}{dP_\theta^x}(y) > 0
+\quad\text{for }P_\theta^x\text{-a.e. } y\in H_x,
+\]
+then
+\[
+(AP_\theta)^x(H_x) > 0.
+\]
+In particular, any alignment that only reweights existing support and is strictly positive on harmful-support mass cannot eliminate harmful support.
+\end{theorem}
+
+\begin{proof}
+Fix \(x\in X\), and define \(Q^x:=(AP_\theta)^x\), \(P^x:=P_\theta^x\).
+By \(Q^x\ll P^x\), the Radon--Nikodym derivative
+\[
+g_x := \frac{dQ^x}{dP^x}
+\]
+exists \(P^x\)-almost everywhere and is nonnegative.
+
+For any measurable \(B\in\mathcal{Y}\),
+\[
+Q^x(B)=\int_B g_x(y)\,dP^x(y).
+\]
+Apply this to \(B=H_x\):
+\[
+Q^x(H_x)=\int_{H_x} g_x(y)\,dP^x(y).
+\]
+By assumption, \(P^x(H_x)>0\), and \(g_x(y)>0\) for \(P^x\)-almost every \(y\in H_x\).
+Hence the integral over \(H_x\) is strictly positive:
+\[
+\int_{H_x} g_x(y)\,dP^x(y) > 0.
+\]
+Therefore \(Q^x(H_x)>0\).
+\end{proof}
+
+\paragraph{Corollary (Finite/discrete case).}
+If \(Y\) is countable and \(P_\theta(y\mid x)>0\Rightarrow (AP_\theta)(y\mid x)>0\), then for any \(x\),
+\[
+P_\theta(H_x\mid x)>0 \implies (AP_\theta)(H_x\mid x)>0.
+\]
+This recovers the discrete support-preservation theorem as a special case.

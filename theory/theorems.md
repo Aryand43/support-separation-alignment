@@ -18,14 +18,19 @@ Define the ideal eliminator:
 P^\star(y\mid x) \propto P_\theta(y\mid x)\mathbf{1}[h(x,y)=0].
 \]
 
-## Theorem 1 (Structural Support Persistence)
+## Theorem 1 (Universal Support Persistence)
 
-If \(A\) is support-preserving and there exists \(x\in X\), \(y\in H_x\) with \(P_\theta(y\mid x)>0\), then:
+Let \(A\) satisfy absolute continuity for each prompt:
+\[
+(A P_\theta)(\cdot\mid x) \ll P_\theta(\cdot\mid x).
+\]
+If there exists \(x\in X\) with \(P_\theta(H_x\mid x)>0\) and the Radon--Nikodym derivative
+\(\frac{d(A P_\theta)(\cdot\mid x)}{dP_\theta(\cdot\mid x)}\) is strictly positive \(P_\theta\)-a.e. on \(H_x\), then:
 \[
 (A P_\theta)(H_x\mid x) > 0.
 \]
 
-Equivalently, support-preserving alignment cannot eliminate harmful support.
+Equivalently, any strictly positive reweighting over existing support cannot eliminate harmful support.
 
 ## Theorem 2 (Computational Separation)
 
@@ -37,6 +42,16 @@ For every probabilistic polynomial-time filter \(F\) with black-box sampling acc
 \]
 
 Hence no bounded black-box filter can approximate ideal support elimination below \(\varepsilon_0\).
+
+## Theorem 2b (White-Box / No-Trapdoor Limitation)
+
+Under the same hardness assumptions, granting polynomial-time access to aligned model internals (e.g., logits, gradients, parameters) but not to trapdoor key material still does not, in general, permit approximation of \(P^\star\) below a constant TV threshold.
+
+Formally, there exists \(\varepsilon_{\mathrm{wb}}>0\) such that for every polynomial-time no-trapdoor white-box filter \(F_{\mathrm{wb}}\):
+\[
+\mathrm{TV}\!\left(P_{F_{\mathrm{wb}},A,\theta,k}(\cdot\mid x),\; P_k^\star(\cdot\mid x)\right)\ge \varepsilon_{\mathrm{wb}}
+\]
+for infinitely many security parameters.
 
 ## Theorem 3 (Residual Harmful Mass Lower Bound)
 

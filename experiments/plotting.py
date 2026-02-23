@@ -18,8 +18,8 @@ def generate_plots(df: pd.DataFrame, out_dir: str) -> None:
 
     # Harmful mass vs filter query budget
     plt.figure(figsize=(8, 5))
-    sub = df[df["condition"] == "bounded_filter"]
-    sns.lineplot(data=sub, x="filter_budget", y="harmful_mass", hue="beta", marker="o")
+    sub = df[df["condition"].isin(["bounded_filter", "whitebox_filter"])]
+    sns.lineplot(data=sub, x="filter_budget", y="harmful_mass", hue="condition", style="beta", marker="o")
     plt.title("Harmful Mass vs Filter Query Budget")
     plt.xlabel("Filter Query Budget T")
     plt.ylabel("Estimated Harmful Mass")
@@ -29,7 +29,7 @@ def generate_plots(df: pd.DataFrame, out_dir: str) -> None:
 
     # Harmful mass vs filter capacity
     plt.figure(figsize=(8, 5))
-    sns.lineplot(data=sub, x="filter_capacity", y="harmful_mass", hue="beta", marker="o")
+    sns.lineplot(data=sub, x="filter_capacity", y="harmful_mass", hue="condition", style="beta", marker="o")
     plt.title("Harmful Mass vs Filter Capacity")
     plt.xlabel("Filter Capacity")
     plt.ylabel("Estimated Harmful Mass")
@@ -39,7 +39,7 @@ def generate_plots(df: pd.DataFrame, out_dir: str) -> None:
 
     # TV distance vs runtime
     plt.figure(figsize=(8, 5))
-    sns.scatterplot(data=sub, x="runtime_sec", y="tv_to_ideal", hue="beta", style="filter_budget", s=90)
+    sns.scatterplot(data=sub, x="runtime_sec", y="tv_to_ideal", hue="condition", style="filter_budget", s=90)
     plt.title("TV Distance to Ideal vs Runtime")
     plt.xlabel("Runtime (sec)")
     plt.ylabel("Estimated TV Distance to Ideal")
@@ -57,3 +57,15 @@ def generate_plots(df: pd.DataFrame, out_dir: str) -> None:
     plt.tight_layout()
     plt.savefig(out / "beta_vs_residual_harmful_mass.png", dpi=220)
     plt.close()
+
+    scaling = df[df["condition"] == "scaling_summary"].copy()
+    if not scaling.empty:
+        plt.figure(figsize=(8, 5))
+        sns.lineplot(data=scaling, x="security_param", y="harmful_floor", marker="o", label="harmful mass floor")
+        sns.lineplot(data=scaling, x="security_param", y="required_queries", marker="s", label="required queries")
+        plt.title("Scaling vs Security Parameter")
+        plt.xlabel("Security parameter n (challenge bits)")
+        plt.ylabel("Empirical scaling statistic")
+        plt.tight_layout()
+        plt.savefig(out / "scaling_vs_security_param.png", dpi=220)
+        plt.close()

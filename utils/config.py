@@ -24,6 +24,13 @@ class ExperimentConfig:
     # Bounded black-box filter
     filter_budgets: List[int] = field(default_factory=lambda: [1, 2, 4, 8, 16, 32])
     filter_capacities: List[int] = field(default_factory=lambda: [4, 8, 16, 32])
+    whitebox_capacities: List[int] = field(default_factory=lambda: [4, 8, 16, 32])
+
+    # Security-scaling study
+    security_params: List[int] = field(default_factory=lambda: [4, 6, 8, 10])
+    scaling_target_harmful_mass: float = 0.15
+    scaling_floor_tolerance: float = 0.02
+    adversarial_prompt_span: int = 64
 
     # Evaluation
     eval_prompts: int = 32

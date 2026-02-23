@@ -1,18 +1,20 @@
 # Proof Sketches
 
-## Theorem 1 (Structural Support Persistence)
+## Theorem 1 (Universal Support Persistence)
 
-Take any \(x\) and any harmful \(y\in H_x\) with \(P_\theta(y\mid x)>0\). By support-preservation,
-\((A P_\theta)(y\mid x)>0\). Summing over all harmful \(y\) in \(H_x\) gives
-\((A P_\theta)(H_x\mid x) > 0\). Therefore harmful support cannot be fully removed by any support-preserving operator.
+Use Radon--Nikodym derivatives. If \((A P_\theta)(\cdot\mid x)\ll P_\theta(\cdot\mid x)\), then
+\[
+(A P_\theta)(H_x\mid x)=\int_{H_x} g_x(y)\,dP_\theta(y\mid x).
+\]
+If \(P_\theta(H_x\mid x)>0\) and \(g_x>0\) almost everywhere on \(H_x\), the integral is strictly positive.
+Hence harmful support mass persists for any strictly positive reweighting operator on measurable spaces.
 
 ## Theorem 2 (Computational Separation)
 
-Construct \(h_k\) using a PRF-like predicate keyed by secret \(k\). The base model places substantial mass on outputs
-whose harmfulness depends on PRF agreement. The ideal eliminator knows \(k\) and removes exactly those outputs.
-A bounded filter with only black-box samples cannot recover the keyed predicate beyond negligible advantage under the
-one-way function assumption. If it could drive TV distance to ideal below \(\varepsilon_0\), we could build a distinguisher
-against PRF pseudorandomness, violating hardness.
+Construct \(h_k\) via keyed PRF agreement and define \(P_k^\star\) as exact harmful-support eliminator.
+If a PPT filter achieved TV\(<\varepsilon_0\) to \(P_k^\star\), then residual harmful mass under filtering would be
+uniformly tiny. Replacing PRF by random function yields a hybrid gap in residual harmful mass; this gap is converted
+into a non-negligible PRF distinguishing advantage, contradicting PRF security.
 
 ## Theorem 3 (Residual Harmful Mass Lower Bound)
 
