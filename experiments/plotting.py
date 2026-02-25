@@ -18,7 +18,7 @@ def generate_plots(df: pd.DataFrame, out_dir: str) -> None:
 
     # Harmful mass vs filter query budget
     plt.figure(figsize=(8, 5))
-    sub = df[df["condition"].isin(["bounded_filter", "whitebox_filter"])]
+    sub = df[df["condition"].isin(["bounded_filter", "whitebox_filter", "sq_filter"])]
     sns.lineplot(data=sub, x="filter_budget", y="harmful_mass", hue="condition", style="beta", marker="o")
     plt.title("Harmful Mass vs Filter Query Budget")
     plt.xlabel("Filter Query Budget T")
@@ -68,4 +68,15 @@ def generate_plots(df: pd.DataFrame, out_dir: str) -> None:
         plt.ylabel("Empirical scaling statistic")
         plt.tight_layout()
         plt.savefig(out / "scaling_vs_security_param.png", dpi=220)
+        plt.close()
+
+    sq = df[df["condition"] == "sq_filter"].copy()
+    if not sq.empty:
+        plt.figure(figsize=(8, 5))
+        sns.lineplot(data=sq, x="num_stat_queries", y="harmful_mass", hue="beta", marker="o")
+        plt.title("Harmful Mass vs Number of Statistical Queries")
+        plt.xlabel("Number of Statistical Queries")
+        plt.ylabel("Estimated Harmful Mass")
+        plt.tight_layout()
+        plt.savefig(out / "harmful_mass_vs_num_statistical_queries.png", dpi=220)
         plt.close()

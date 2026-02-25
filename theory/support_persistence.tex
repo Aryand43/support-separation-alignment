@@ -8,6 +8,13 @@ Let \(H_x\in\mathcal{Y}\) be the harmful event set.
 Let \(A\) be an alignment operator mapping kernels to kernels, with aligned kernel
 \((AP_\theta)^x := (AP_\theta)(\cdot\mid x)\).
 
+\paragraph{Support-preserving operator definition.}
+We call \(A\) support-preserving if
+\[
+P_\theta(y\mid x)>0 \implies (AP_\theta)(y\mid x)>0.
+\]
+This covers standard stochastic alignment maps used in practice (RLHF/PPO policy reweighting, DPO-like preference updates, and exponential reward tilting) when they avoid hard-zero truncation.
+
 \begin{theorem}[Universal Support Persistence]
 Assume that for every \(x\in X\),
 \[

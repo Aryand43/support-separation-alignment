@@ -23,6 +23,7 @@ from experiments.metrics import (
 )
 from experiments.plotting import generate_plots
 from filters.bounded_filter import BoundedBlackBoxFilter, FilterSpec
+from filters.statistical_query_filter import StatisticalQueryFilter, StatisticalQuerySpec
 from filters.trapdoor_filter import TrapdoorFilter
 from filters.whitebox_filter import WhiteBoxFilter, WhiteBoxSpec
 from models.base_generator import ToyBaseGenerator, ToyGeneratorSpec
@@ -74,6 +75,8 @@ def build_arg_parser() -> argparse.ArgumentParser:
     p.add_argument("--filter-budgets", type=str, default="1,2,4,8,16,32")
     p.add_argument("--filter-capacities", type=str, default="4,8,16,32")
     p.add_argument("--whitebox-capacities", type=str, default="4,8,16,32")
+    p.add_argument("--sq-budgets", type=str, default="1,2,4,8,16,32")
+    p.add_argument("--sq-samples-per-query", type=int, default=32)
     p.add_argument("--security-params", type=str, default="4,6,8,10")
     p.add_argument("--adversarial-prompt-span", type=int, default=64)
     p.add_argument("--scaling-target-harmful-mass", type=float, default=0.15)
@@ -124,6 +127,7 @@ def run(cfg: ExperimentConfig) -> pd.DataFrame:
                 "beta": 0.0,
                 "filter_budget": None,
                 "filter_capacity": None,
+                "num_stat_queries": None,
                 "harmful_mass": base_harm,
                 "tv_to_ideal": None,
                 "runtime_sec": 0.0,
@@ -153,6 +157,7 @@ def run(cfg: ExperimentConfig) -> pd.DataFrame:
                     "beta": beta,
                     "filter_budget": None,
                     "filter_capacity": None,
+                    "num_stat_queries": None,
                     "harmful_mass": aligned_harm,
                     "tv_to_ideal": estimate_tv_distance(aligned, trapdoor, prompts, cfg.tv_samples),
                     "runtime_sec": 0.0,
@@ -174,6 +179,7 @@ def run(cfg: ExperimentConfig) -> pd.DataFrame:
                     "beta": beta,
                     "filter_budget": None,
                     "filter_capacity": None,
+                    "num_stat_queries": None,
                     "harmful_mass": trap_harm,
                     "tv_to_ideal": 0.0,
                     "runtime_sec": 0.0,
@@ -220,6 +226,7 @@ def run(cfg: ExperimentConfig) -> pd.DataFrame:
                             "beta": beta,
                             "filter_budget": budget,
                             "filter_capacity": capacity,
+                            "num_stat_queries": None,
                             "harmful_mass": harm,
                             "tv_to_ideal": tv,
                             "runtime_sec": runtime,
@@ -263,6 +270,7 @@ def run(cfg: ExperimentConfig) -> pd.DataFrame:
                             "beta": beta,
                             "filter_budget": budget,
                             "filter_capacity": capacity,
+                            "num_stat_queries": None,
                             "harmful_mass": harm,
                             "tv_to_ideal": tv,
                             "runtime_sec": runtime,
@@ -270,12 +278,56 @@ def run(cfg: ExperimentConfig) -> pd.DataFrame:
                         }
                     )
 
+            for sq_budget in cfg.sq_budgets:
+                sq_filter = StatisticalQueryFilter(
+                    model=aligned,
+                    spec=StatisticalQuerySpec(
+                        num_stat_queries=sq_budget,
+                        samples_per_query=cfg.sq_samples_per_query,
+                        max_candidate_draws=max(2, min(8, sq_budget)),
+                        reject_threshold=0.35,
+                    ),
+                    seed=cfg.seed + 13 * n + sq_budget,
+                )
+                sq_filter.reset_stats()
+                elapsed_harm, harm = timed_call(
+                    estimate_harmful_mass,
+                    sq_filter,
+                    prompts,
+                    generator.is_harmful_with_trapdoor,
+                    cfg.samples_per_prompt,
+                )
+                elapsed_tv, tv = timed_call(
+                    estimate_tv_distance,
+                    sq_filter,
+                    trapdoor,
+                    prompts,
+                    cfg.tv_samples,
+                )
+                runtime = elapsed_harm + elapsed_tv
+                produced = cfg.eval_prompts * (cfg.samples_per_prompt + cfg.tv_samples)
+                avg_q = query_complexity(sq_filter, produced)
+                rows.append(
+                    {
+                        "condition": "sq_filter",
+                        "security_param": n,
+                        "beta": beta,
+                        "filter_budget": sq_budget,
+                        "filter_capacity": None,
+                        "num_stat_queries": sq_budget,
+                        "harmful_mass": harm,
+                        "tv_to_ideal": tv,
+                        "runtime_sec": runtime,
+                        "avg_queries_per_output": avg_q,
+                    }
+                )
+
         # Scaling summary is anchored at beta=0 to isolate computational filtering limits.
         n_rows = [
             r
             for r in rows
             if r.get("security_param") == n
-            and r["condition"] in {"bounded_filter", "whitebox_filter"}
+            and r["condition"] in {"bounded_filter", "whitebox_filter", "sq_filter"}
             and float(r.get("beta", 0.0)) == 0.0
         ]
         if n_rows:
@@ -299,6 +351,7 @@ def run(cfg: ExperimentConfig) -> pd.DataFrame:
                     "beta": None,
                     "filter_budget": None,
                     "filter_capacity": None,
+                    "num_stat_queries": None,
                     "harmful_mass": None,
                     "harmful_floor": harmful_floor,
                     "required_queries": required_queries_target,
@@ -329,6 +382,7 @@ def run(cfg: ExperimentConfig) -> pd.DataFrame:
                 "beta": None,
                 "filter_budget": None,
                 "filter_capacity": None,
+                "num_stat_queries": None,
                 "harmful_mass": c_hat,
                 "harmful_floor": c_hat,
                 "required_queries": None,
@@ -362,6 +416,8 @@ def main() -> None:
         filter_budgets=_parse_int_list(args.filter_budgets),
         filter_capacities=_parse_int_list(args.filter_capacities),
         whitebox_capacities=_parse_int_list(args.whitebox_capacities),
+        sq_budgets=_parse_int_list(args.sq_budgets),
+        sq_samples_per_query=args.sq_samples_per_query,
         security_params=_parse_int_list(args.security_params),
         adversarial_prompt_span=args.adversarial_prompt_span,
         scaling_target_harmful_mass=args.scaling_target_harmful_mass,

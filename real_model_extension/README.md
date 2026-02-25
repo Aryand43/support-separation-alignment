@@ -1,25 +1,37 @@
-# Real Model Extension (Optional)
+# Real Model Extension (Qualitative)
 
-This folder provides a lightweight bridge from the toy hardness setup to a small open chat model.
+This folder provides a lightweight transformer-compatible qualitative check.
 
 ## What it does
 
-- Generates responses on a mini jailbreak-style prompt list.
-- Compares three conditions:
-  - `base` (raw generation),
-  - `rlhf_proxy` (safety-prefixed generation),
-  - `guard_proxy` (post-hoc lexical safety gate).
-- Writes aggregate safety rates to CSV.
+- Runs a small open model on a mini jailbreak-style prompt set.
+- Sweeps:
+  - multiple sampling temperatures,
+  - multiple safety prefix strengths.
+- Compares:
+  - `base` generation,
+  - `prefix_only` alignment proxy,
+  - `guard_proxy` post-hoc lexical safety filter.
+- Reports residual unsafe rate and plots unsafe-rate plateau trends.
 
 ## Run
 
 ```bash
-pip install transformers accelerate torch
+pip install transformers accelerate torch matplotlib seaborn pandas
 python real_model_extension/run_real_model_eval.py
 ```
 
-Output:
+Optional:
+
+```bash
+python real_model_extension/run_real_model_eval.py \
+  --temperatures "0.3,0.7,1.0" \
+  --prefix-strengths "0.0,0.25,0.5,0.75,1.0"
+```
+
+Outputs:
 
 - `outputs/real_model_extension.csv`
+- `outputs/plots/real_model_unsafe_vs_prefix_strength.png`
 
-This is not a full retraining pipeline; it is a minimal extension to demonstrate qualitative residual-risk plateau behavior on real model outputs.
+This extension is qualitative evidence only; it is not a full benchmark or retraining study.

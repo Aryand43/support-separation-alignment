@@ -1,9 +1,10 @@
-# Reduction from PRF Hardness to Filtering Impossibility
+# Reduction from Hidden-Feature Hardness to Filtering Impossibility
 
 ## Setup and Assumptions
 
 Let the security parameter be \(n \in \mathbb{N}\).
 Let \(\mathcal{F}_n = \{f_k : \{0,1\}^{m(n)} \to \{0,1\}\}_{k \leftarrow \{0,1\}^{\kappa(n)}}\) be a PRF family secure against PPT distinguishers.
+This PRF instantiates a computationally hidden harmful feature in a worst-case construction.
 
 Define:
 
@@ -71,7 +72,7 @@ Averaging over \(x\sim D_{X,n}\):
 \rho_n^{\mathsf{Real}} := \Pr_{x,y}[h_k(x,y)=1 \text{ after filtering}] \le \varepsilon_0.
 \]
 
-In the random-function world, \(F_n\) has no key structure to exploit.
+In the random-function world, \(F_n\) has no hidden-feature structure to exploit.
 Standard unpredictability for black-box PPT interaction with random labels implies:
 \[
 \rho_n^{\mathsf{Rand}} \ge \mu_0 - \mathrm{negl}(n).
@@ -126,3 +127,11 @@ Advantage loss is additive concentration slack \(\delta_n\) and simulator overhe
 \mu_0 - \varepsilon_0 - \delta_n - \mathrm{negl}(n).
 \]
 Thus any infinitely-often PPT filter with \(\varepsilon_0 < \mu_0\) yields a PRF break. Therefore such a filter cannot exist under PRF hardness.
+
+## Interpretation for Neural Models
+
+This reduction should be interpreted as a structural lower-bound template, not as a claim that real LLMs contain literal cryptographic keys.
+
+- **Computationally hidden harmful feature** corresponds to latent harm-relevant structure that is not directly exposed to bounded filtering interfaces.
+- In neural terms, this can reflect **deep feature entanglement**, **emergent circuits**, or **underspecified latent features** where harmfulness depends on distributed patterns.
+- The claim is worst-case: if alignment preserves support and filtering is bounded, residual harmful mass can persist when harmful structure is computationally difficult to infer.

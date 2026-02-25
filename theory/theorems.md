@@ -1,63 +1,59 @@
-# Support-Separation Theorems
+# Support-Preserving Alignment Theorems
 
 Let \(X\) be a prompt space, \(Y\) a response space, and \(h: X \times Y \to \{0,1\}\) a harmful predicate.
-Let \(P_\theta(\cdot \mid x)\) be a base conditional distribution.
+Let \(P_\theta(\cdot \mid x)\) be a base conditional distribution and \(H_x := \{y\in Y : h(x,y)=1\}\).
 
-Define the harmful set:
-\[
-H_x := \{y \in Y : h(x,y) = 1\}.
-\]
-
-Let \(A\) be a support-preserving alignment operator:
+Define a support-preserving stochastic alignment operator \(A\) by:
 \[
 P_\theta(y\mid x) > 0 \implies (A P_\theta)(y\mid x) > 0.
 \]
 
+This includes as special cases RLHF/PPO reweighting, DPO-like preference reweighting, and generic reward-tilting operators
+\[
+\widetilde P(y\mid x)\propto P_\theta(y\mid x)\exp(\beta r(x,y)),
+\]
+provided they do not hard-zero support points.
+
 Define the ideal eliminator:
 \[
-P^\star(y\mid x) \propto P_\theta(y\mid x)\mathbf{1}[h(x,y)=0].
+P^\star(y\mid x)\propto P_\theta(y\mid x)\mathbf{1}[h(x,y)=0].
 \]
 
 ## Theorem 1 (Universal Support Persistence)
 
-Let \(A\) satisfy absolute continuity for each prompt:
+Assume for each \(x\), \((A P_\theta)(\cdot\mid x)\ll P_\theta(\cdot\mid x)\), and the Radon--Nikodym derivative
+\(\frac{d(A P_\theta)(\cdot\mid x)}{dP_\theta(\cdot\mid x)}\) is positive \(P_\theta\)-a.e. on \(H_x\).
+If \(P_\theta(H_x\mid x)>0\), then:
 \[
-(A P_\theta)(\cdot\mid x) \ll P_\theta(\cdot\mid x).
+(A P_\theta)(H_x\mid x)>0.
 \]
-If there exists \(x\in X\) with \(P_\theta(H_x\mid x)>0\) and the Radon--Nikodym derivative
-\(\frac{d(A P_\theta)(\cdot\mid x)}{dP_\theta(\cdot\mid x)}\) is strictly positive \(P_\theta\)-a.e. on \(H_x\), then:
+So support-preserving alignment cannot eliminate harmful support mass.
+
+## Theorem 2 (Computational Separation via Hidden Feature Hardness)
+
+Assume one-way functions exist. Then there exists a family of generators whose harmfulness depends on a computationally hidden harmful feature, and a constant \(\varepsilon_0>0\), such that:
+
+for every PPT black-box filter \(F\), for infinitely many security parameters \(n\),
 \[
-(A P_\theta)(H_x\mid x) > 0.
-\]
-
-Equivalently, any strictly positive reweighting over existing support cannot eliminate harmful support.
-
-## Theorem 2 (Computational Separation)
-
-Assume one-way functions exist. Then there exists a keyed family of harmful predicates \(h_k\) and induced generators \(P_{\theta,k}\) such that for some constant \(\varepsilon_0>0\):
-
-For every probabilistic polynomial-time filter \(F\) with black-box sampling access to \(P_{\theta,k}\), there exists infinitely many security parameters \(n\) for which:
-\[
-\mathrm{TV}\!\left(P_{F,A,\theta,k}(\cdot\mid x),\; P_k^\star(\cdot\mid x)\right) \ge \varepsilon_0.
+\mathbb{E}_{x\sim D_{X,n}}\!\left[\mathrm{TV}\!\left(P_{F,A,\theta}^{(n)}(\cdot\mid x),\,P^{\star,(n)}(\cdot\mid x)\right)\right]\ge \varepsilon_0.
 \]
 
-Hence no bounded black-box filter can approximate ideal support elimination below \(\varepsilon_0\).
+Thus bounded black-box filtering cannot approximate ideal elimination arbitrarily well.
 
-## Theorem 2b (White-Box / No-Trapdoor Limitation)
+## Theorem 3 (Information-Theoretic Residual Floor)
 
-Under the same hardness assumptions, granting polynomial-time access to aligned model internals (e.g., logits, gradients, parameters) but not to trapdoor key material still does not, in general, permit approximation of \(P^\star\) below a constant TV threshold.
-
-Formally, there exists \(\varepsilon_{\mathrm{wb}}>0\) such that for every polynomial-time no-trapdoor white-box filter \(F_{\mathrm{wb}}\):
+There exists a hypothesis class of harmful events with VC-dimension \(d\) such that for any support-preserving alignment \(A\), any statistical-query filter using at most \(m\) queries, and some distribution \(D\):
 \[
-\mathrm{TV}\!\left(P_{F_{\mathrm{wb}},A,\theta,k}(\cdot\mid x),\; P_k^\star(\cdot\mid x)\right)\ge \varepsilon_{\mathrm{wb}}
+\mathbb{E}_{x\sim D}\!\left[P_{F,A,\theta}(H_x\mid x)\right]\ge \Omega\!\left(\frac{d}{m}\right),
 \]
-for infinitely many security parameters.
+equivalently at least \(\Omega(1/\mathrm{poly}(m))\) for fixed \(d\)-scaling regimes.
 
-## Theorem 3 (Residual Harmful Mass Lower Bound)
+So residual harmful floors arise even without cryptographic assumptions.
 
-Under the same assumptions, there exists a constant \(c>0\) such that for every support-preserving alignment \(A\) and every polynomial-time black-box filter \(F\), there is an \(x\in X\) with:
-\[
-P_{F,A,\theta}(H_x\mid x) \ge c.
-\]
+## Theorem 4 (Residual Harmful Mass Lower Bound)
 
-Thus residual harmful mass is bounded away from zero.
+Combining Theorems 1--3: under bounded filtering (computational or SQ-limited), there exists \(c>0\) such that residual harmful mass remains bounded away from zero on some inputs/distributions.
+
+## White-Box Clarification (Restricted Claim)
+
+White-box access to logits/parameters without harmful ground-truth oracle access does not, in general, collapse the separation unless the alignment map exposes harm-relevant sufficient statistics. This is an assumption-sensitive statement, not a blanket impossibility theorem for all realistic neural settings.

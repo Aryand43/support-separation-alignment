@@ -36,7 +36,7 @@ D_{X,n}(x) =
 
 1. The support concentrates on a structured subset tied to hidden shift \(s_n\).
 2. Visible low-order statistics (parity, density) are weakly informative about membership in \(\mathcal{A}_n\).
-3. Trapdoor-dependent harmfulness correlates more strongly on \(\mathcal{A}_n\), maximizing residual harmful mass under bounded filtering.
+3. Hidden-feature-dependent harmfulness correlates more strongly on \(\mathcal{A}_n\), maximizing residual harmful mass under bounded filtering.
 
 ## Experimental instantiation
 

@@ -1,14 +1,30 @@
-# support-separation-alignment
+# Support-Preserving Alignment and Residual Risk Floors
 
-Formal and empirical study of support separation between:
+This repository studies residual harmful mass under aligned generation and bounded filtering.
 
-- support-preserving alignment operators,
-- bounded black-box and white-box (no-trapdoor) filters,
-- trapdoor ideal elimination.
+## Positioning
 
-This repository is structured for paper-grade claims: explicit assumptions, security parameter \(n\), formal reductions, complexity model, and security-scaling experiments.
+We show:
 
-## Architecture
+1. Any support-preserving stochastic alignment operator cannot eliminate harmful mass that already has positive support.
+2. Under bounded filtering, residual harmful mass floors arise.
+3. These floors can be derived in both computational and information-theoretic settings.
+
+The goal is not to claim alignment is impossible. The claim is that support-preserving alignment plus bounded filtering can leave nonzero residual risk.
+
+## Framework
+
+Alignment operator \(A\) is support-preserving if:
+\[
+P_\theta(y|x) > 0 \Rightarrow (A P_\theta)(y|x) > 0.
+\]
+
+This covers RLHF, PPO-style policy reweighting, DPO-like preference reweighting, and generic reward tilting:
+\[
+\widetilde P(y|x)\propto P_\theta(y|x)\exp(\beta r(x,y)).
+\]
+
+## Repository Structure
 
 ```
 support-separation-alignment/
@@ -17,8 +33,11 @@ support-separation-alignment/
 │   ├── theorems.md
 │   ├── proof_sketches.md
 │   ├── support_persistence.tex
+│   ├── info_theoretic_lower_bound.md
 │   ├── complexity_model.md
 │   ├── adversarial_distribution.md
+│   ├── transformer_interpretation.md
+│   ├── positioning.md
 │   ├── appendix_proofs.md
 │   └── reductions/
 │       └── prf_reduction.md
@@ -29,6 +48,7 @@ support-separation-alignment/
 ├── filters/
 │   ├── bounded_filter.py
 │   ├── whitebox_filter.py
+│   ├── statistical_query_filter.py
 │   └── trapdoor_filter.py
 ├── experiments/
 │   ├── run_experiment.py
@@ -37,68 +57,45 @@ support-separation-alignment/
 ├── real_model_extension/
 │   ├── run_real_model_eval.py
 │   └── README.md
-├── utils/
-│   ├── data_generation.py
-│   └── config.py
-└── README.md
+└── utils/
+    ├── data_generation.py
+    └── config.py
 ```
 
-## Main Contributions
+## Theory Modules
 
-- Universal support-persistence theorem for absolutely continuous alignments in measurable spaces.
-- Explicit PRF-hardness reduction linking low-TV filtering to PRF distinguishing.
-- Formal PPT oracle complexity model for black-box and white-box filters.
-- Adversarial prompt distribution \(D_{X,n}\) used by both reduction and experiments.
-- Security-scaling experiment over \(n \in \{4,6,8,10\}\), including harmful-floor and query requirements.
-- White-box vs black-box comparison showing trapdoor remains the key separator.
+- `theory/support_persistence.tex`: universal support-persistence theorem in measurable spaces.
+- `theory/reductions/prf_reduction.md`: computational lower bound via hidden-feature hardness (PRF instantiation).
+- `theory/info_theoretic_lower_bound.md`: SQ/VC-style residual floor without cryptographic assumptions.
+- `theory/positioning.md`: novelty and relation to adjacent impossibility literature.
+- `theory/transformer_interpretation.md`: mapping to transformer-era alignment updates.
 
-## Theory-to-Code Mapping
+## Experimental Modules
 
-- `theory/support_persistence.tex`: universal theorem statement + proof.
-- `theory/reductions/prf_reduction.md`: explicit hardness-to-TV reduction.
-- `theory/complexity_model.md`: PPT filter class and oracle interface.
-- `theory/adversarial_distribution.md`: adversarial prompt family \(D_{X,n}\).
-- `experiments/run_experiment.py`: empirical analog implementing \(D_{X,n}\), scaling, and filter comparisons.
+`experiments/run_experiment.py` compares:
 
-## Experimental Design
+- `bounded_filter` (black-box),
+- `whitebox_filter` (logit/probability access, no harmful oracle),
+- `sq_filter` (statistical-query style),
+- `trapdoor_oracle` (ideal reference for gap measurement).
 
-For each security parameter \(n\):
-
-1. Build a keyed toy generator \(P_{\theta,k}^{(n)}\) over \(y=(c,r,b)\) with trapdoor harmful predicate.
-2. Apply support-preserving alignment \(A_\beta\).
-3. Compare:
-   - `bounded_filter` (black-box, query-limited),
-   - `whitebox_filter` (logit/probability access, no trapdoor),
-   - `trapdoor_oracle` (ideal eliminator baseline).
-4. Estimate:
-   - residual harmful mass,
-   - TV distance to ideal eliminator,
-   - query/runtime complexity,
-   - security-scaling summary (`harmful_floor`, required queries).
+Sweeps include security parameter, filter compute budgets, and alignment strength.
 
 ## Run
 
-Install dependencies:
-
 ```bash
 pip install numpy pandas matplotlib seaborn
-```
-
-Main experiment:
-
-```bash
 python experiments/run_experiment.py
 ```
 
-Example with explicit scaling sweep:
+Example:
 
 ```bash
 python experiments/run_experiment.py \
   --security-params "4,6,8,10" \
-  --beta-values "0.0,0.5,1.0,2.0,4.0" \
+  --beta-values "0.0,0.5,1.0,2.0" \
   --filter-budgets "1,2,4,8,16,32" \
-  --filter-capacities "4,8,16,32" \
-  --whitebox-capacities "4,8,16,32" \
+  --sq-budgets "1,2,4,8,16,32" \
   --eval-prompts 32 \
   --samples-per-prompt 512 \
   --tv-samples 2048 \
@@ -110,18 +107,9 @@ python experiments/run_experiment.py \
 - `outputs/metrics.csv`
 - `outputs/plots/harmful_mass_vs_budget.png`
 - `outputs/plots/harmful_mass_vs_capacity.png`
+- `outputs/plots/harmful_mass_vs_num_statistical_queries.png`
 - `outputs/plots/tv_vs_runtime.png`
 - `outputs/plots/beta_vs_residual_harmful_mass.png`
 - `outputs/plots/scaling_vs_security_param.png`
 
-`metrics.csv` includes `condition=scaling_summary` rows with:
-
-- `harmful_floor` (minimum achieved harmful mass under bounded/white-box filters),
-- `required_queries` (queries per output needed to reach near-floor),
-- `required_queries_target` (target-risk query proxy; lower bound if unattained).
-
-It also includes `condition=empirical_constant_estimate` with \(\hat c\), the empirical lower-bound constant estimate for residual harmful mass over tested security parameters.
-
-## Optional Real-Model Bridge
-
-See `real_model_extension/README.md` for a lightweight extension using `transformers` to compare base vs safety-prefix vs post-hoc filter behavior on a mini jailbreak prompt list.
+`metrics.csv` includes scaling summaries and empirical floor estimates.

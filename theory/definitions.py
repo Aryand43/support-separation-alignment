@@ -29,7 +29,7 @@ class FormalObjects:
     Y: response space
     h: harmful predicate h(y) (implemented here as h(x, y) for convenience)
     P_theta: base conditional distribution
-    A: support-preserving alignment operator
+    A: support-preserving stochastic alignment operator
     P_star: ideal eliminator/oracle
     """
 
@@ -62,8 +62,19 @@ def support_preservation_axiom(
 
 ASSUMPTIONS = {
     "A1": "P_theta has finite support over Y for each x and assigns strictly positive mass over its support.",
-    "A2": "Alignment operator A is support-preserving (no hard zeroing on points in supp(P_theta(.|x))).",
-    "A3": "Ideal eliminator P_star can access hidden trapdoor signal and sets harmful mass to zero.",
+    "A2": "Alignment operator A is support-preserving: if P_theta(y|x)>0 then (A P_theta)(y|x)>0.",
+    "A3": "Ideal eliminator P_star can access the hidden harmful feature and sets harmful mass to zero.",
     "A4": "Bounded filters are polynomial-time and only query the generator through black-box sampling.",
     "A5": "One-way functions exist, yielding PRF-style families that are computationally hard to predict without a key.",
 }
+
+
+def support_preserving_definition() -> str:
+    return "For all x,y: P_theta(y|x) > 0 implies (A P_theta)(y|x) > 0."
+
+
+ALIGNMENT_SPECIAL_CASES = [
+    "RLHF/PPO policy reweighting with finite temperature and no hard clipping to zero.",
+    "DPO-style preference-based logit updates with strictly positive induced probabilities.",
+    "Reward reweighting: P_tilde(y|x) proportional to P_theta(y|x) * exp(beta * r(x,y)).",
+]

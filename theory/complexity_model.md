@@ -17,11 +17,11 @@ A filter algorithm \(F_n\) is given black-box oracle access:
 
 No access to:
 
-- hidden key \(k\),
+- hidden harmful feature representation,
 - internal model weights/gradients (black-box setting),
 - direct harmfulness oracle.
 
-White-box variants may read logits/probabilities of \(Q_n\), but still cannot access \(k\).
+White-box variants may read logits/probabilities of \(Q_n\), but still do not automatically obtain harmful ground-truth labels.
 
 ## Filter Class
 

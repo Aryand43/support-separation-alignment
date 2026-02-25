@@ -16,8 +16,14 @@ If a PPT filter achieved TV\(<\varepsilon_0\) to \(P_k^\star\), then residual ha
 uniformly tiny. Replacing PRF by random function yields a hybrid gap in residual harmful mass; this gap is converted
 into a non-negligible PRF distinguishing advantage, contradicting PRF security.
 
-## Theorem 3 (Residual Harmful Mass Lower Bound)
+## Theorem 3 (Information-Theoretic Residual Floor)
 
-Combine Theorem 1 (harmful support persists under alignment) with Theorem 2 (bounded filters cannot emulate trapdoor
-elimination). This yields a non-zero residual floor \(c\) on harmful mass for some prompts. Empirically, this appears as
-a plateau: increasing bounded compute reduces harm initially but cannot cross the hardness-induced floor.
+Use a fooling-set/SQ-dimension construction where multiple harmful-label worlds are nearly indistinguishable under at most
+\(m\) statistical queries. Since \(A\) preserves support, harmful candidates remain in the aligned distribution; an SQ-limited
+filter cannot identify all harmful regions, yielding residual error \(\Omega(d/m)\) on a hard distribution.
+
+## Theorem 4 (Residual Harmful Mass Lower Bound)
+
+Combine Theorem 1 with either Theorem 2 (computational hardness) or Theorem 3 (information-theoretic SQ hardness).
+Both routes imply a non-zero residual floor \(c\) on harmful mass under bounded filtering. Empirically this appears as a
+plateau: extra filtering compute helps initially but eventually saturates above zero unless stronger information is exposed.

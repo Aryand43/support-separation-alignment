@@ -25,6 +25,8 @@ class ExperimentConfig:
     filter_budgets: List[int] = field(default_factory=lambda: [1, 2, 4, 8, 16, 32])
     filter_capacities: List[int] = field(default_factory=lambda: [4, 8, 16, 32])
     whitebox_capacities: List[int] = field(default_factory=lambda: [4, 8, 16, 32])
+    sq_budgets: List[int] = field(default_factory=lambda: [1, 2, 4, 8, 16, 32])
+    sq_samples_per_query: int = 32
 
     # Security-scaling study
     security_params: List[int] = field(default_factory=lambda: [4, 6, 8, 10])
