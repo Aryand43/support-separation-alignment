@@ -12,10 +12,12 @@ This document provides the technical instructions for an AI agent to reproduce t
 
 ---
 
-## 2. ## Credentials
+## 2. Environment Setup
+
 Set the following environment variable before running:
 
-export OPENROUTER_API_KEY=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
+```bash
+export OPENROUTER_API_KEY=<your-openrouter-api-key>
 
 pip install numpy pandas matplotlib seaborn openai tqdm
 ```
