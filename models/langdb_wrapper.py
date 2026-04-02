@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import time
 
 from openai import OpenAI
 
@@ -8,47 +9,54 @@ from openai import OpenAI
 OPENROUTER_API_KEY = os.environ.get("OPENROUTER_API_KEY", "")
 OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1"
 
-MODEL_MAP = {
-    "gpt-5": "openai/gpt-4o",
-    "claude-opus-4.5": "anthropic/claude-sonnet-4",
-    "gemini-2.5-pro": "google/gemini-2.5-pro-preview",
-    "grok-4": "x-ai/grok-3-beta",
-    "deepseek-r1-0528": "deepseek/deepseek-r1",
-}
+MAX_RETRIES = 6
+RETRY_BACKOFF = 10.0
+CALL_INTERVAL = 5.0
 
 
 class LangDBGenerator:
-    def __init__(self, model_name: str, api_key: str = OPENROUTER_API_KEY):
+    def __init__(self, model_name: str, api_key: str | None = None):
         self.client = OpenAI(
             base_url=OPENROUTER_BASE_URL,
-            api_key=api_key,
+            api_key=api_key or OPENROUTER_API_KEY,
         )
-        self.model = MODEL_MAP.get(model_name, model_name)
+        self.model = model_name
         self.display_name = model_name
+        self._last_call: float = 0.0
 
-    def sample(self, prompt: str, n_samples: int = 1, max_tokens: int = 150) -> list[str]:
-        responses = []
-        for _ in range(n_samples):
-            res = self.client.chat.completions.create(
-                model=self.model,
-                messages=[{"role": "user", "content": prompt}],
-                max_tokens=max_tokens,
-            )
-            responses.append(res.choices[0].message.content or "")
-        return responses
+    def _throttle(self) -> None:
+        elapsed = time.time() - self._last_call
+        if elapsed < CALL_INTERVAL:
+            time.sleep(CALL_INTERVAL - elapsed)
 
-    def sample_with_system(
-        self, system: str, prompt: str, n_samples: int = 1, max_tokens: int = 150
-    ) -> list[str]:
-        responses = []
+    def _call_with_retry(self, messages: list[dict], max_tokens: int) -> str:
+        backoff = RETRY_BACKOFF
+        for attempt in range(MAX_RETRIES):
+            self._throttle()
+            try:
+                res = self.client.chat.completions.create(
+                    model=self.model,
+                    messages=messages,
+                    max_tokens=max_tokens,
+                )
+                self._last_call = time.time()
+                return res.choices[0].message.content or ""
+            except Exception as e:
+                self._last_call = time.time()
+                err = str(e)
+                is_retryable = any(code in err for code in ("429", "502", "503", "504", "529"))
+                if not is_retryable or attempt == MAX_RETRIES - 1:
+                    raise
+                time.sleep(backoff)
+                backoff = min(backoff * 1.5, 60.0)
+        return ""
+
+    def sample(self, prompt: str, n_samples: int = 1, max_tokens: int = 256) -> list[str]:
+        responses: list[str] = []
         for _ in range(n_samples):
-            res = self.client.chat.completions.create(
-                model=self.model,
-                messages=[
-                    {"role": "system", "content": system},
-                    {"role": "user", "content": prompt},
-                ],
-                max_tokens=max_tokens,
+            text = self._call_with_retry(
+                [{"role": "user", "content": prompt}],
+                max_tokens,
             )
-            responses.append(res.choices[0].message.content or "")
+            responses.append(text)
         return responses

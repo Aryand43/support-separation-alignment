@@ -1,0 +1,35 @@
+models:
+  - name: "gemma-3-12b"
+    openrouter_id: "google/gemma-3-12b-it:free"
+    params: 12e9
+    context: 32000
+
+  - name: "qwen3-coder"
+    openrouter_id: "qwen/qwen3-coder:free"
+    params: 480e9
+    context: 262000
+
+  - name: "nemotron-3-super-120b"
+    openrouter_id: "nvidia/nemotron-3-super-120b-a12b:free"
+    params: 120e9
+    context: 262000
+
+  - name: "llama-3.2-3b"
+    openrouter_id: "meta-llama/llama-3.2-3b-instruct:free"
+    params: 3e9
+    context: 131000
+
+  - name: "nemotron-3-nano-30b"
+    openrouter_id: "nvidia/nemotron-3-nano-30b-a3b:free"
+    params: 30e9
+    context: 131000
+
+  - name: "nemotron-nano-9b"
+    openrouter_id: "nvidia/nemotron-nano-9b-v2:free"
+    params: 9e9
+    context: 131000
+
+  - name: "trinity-large-preview"
+    openrouter_id: "arcee-ai/trinity-large-preview:free"
+    params: 400e9
+    context: 131000
