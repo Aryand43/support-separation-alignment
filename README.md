@@ -1,6 +1,6 @@
 # Support-Preserving Alignment and Residual Risk Floors
 
-This repository studies residual harmful mass under aligned generation and bounded filtering.
+This repository studies residual harmful mass under aligned generation and bounded filtering, evaluated on real LLMs via OpenRouter.
 
 ## Positioning
 
@@ -42,74 +42,75 @@ support-separation-alignment/
 │   └── reductions/
 │       └── prf_reduction.md
 ├── models/
-│   ├── base_generator.py
-│   ├── rlhf_alignment.py
-│   └── ideal_eliminator.py
+│   └── langdb_wrapper.py          # OpenRouter API wrapper
 ├── filters/
-│   ├── bounded_filter.py
-│   ├── whitebox_filter.py
-│   ├── statistical_query_filter.py
-│   └── trapdoor_filter.py
+│   ├── bounded_filter.py           # Black-box bounded filter
+│   ├── whitebox_filter.py          # Logprob-aware white-box filter
+│   └── statistical_query_filter.py # SQ-style filter
 ├── experiments/
-│   ├── run_experiment.py
-│   ├── metrics.py
-│   └── plotting.py
+│   ├── run_llm_eval.py             # Main evaluation script
+│   ├── metrics.py                  # Harm classification
+│   └── plotting.py                 # Result visualisation
 ├── real_model_extension/
 │   ├── run_real_model_eval.py
 │   └── README.md
-└── utils/
-    ├── data_generation.py
-    └── config.py
+├── config/
+│   └── models.yaml                 # OpenRouter model list
+└── outputs/
+    └── llm_results/
+        └── llm_metrics.csv
 ```
 
 ## Theory Modules
 
 - `theory/support_persistence.tex`: universal support-persistence theorem in measurable spaces.
-- `theory/reductions/prf_reduction.md`: computational lower bound via hidden-feature hardness (PRF instantiation).
+- `theory/reductions/prf_reduction.md`: computational lower bound via hidden-feature hardness.
 - `theory/info_theoretic_lower_bound.md`: SQ/VC-style residual floor without cryptographic assumptions.
 - `theory/positioning.md`: novelty and relation to adjacent impossibility literature.
 - `theory/transformer_interpretation.md`: mapping to transformer-era alignment updates.
 
-## Experimental Modules
+## Experimental Pipeline
 
-`experiments/run_experiment.py` compares:
+`experiments/run_llm_eval.py` wraps real LLMs (served via OpenRouter) with three bounded filters and measures the residual harmful rate as filter budget increases:
 
-- `bounded_filter` (black-box),
-- `whitebox_filter` (logit/probability access, no harmful oracle),
-- `sq_filter` (statistical-query style),
-- `trapdoor_oracle` (ideal reference for gap measurement).
+- **bounded**: black-box sampling filter (`filters/bounded_filter.py`)
+- **whitebox**: logit/probability-aware filter (`filters/whitebox_filter.py`)
+- **sq**: statistical-query style filter (`filters/statistical_query_filter.py`)
 
-Sweeps include security parameter, filter compute budgets, and alignment strength.
+Evaluation prompts are drawn from curated adversarial prompts and, optionally, the HuggingFace `PKU-Alignment/PKU-SafeRLHF` dataset.
 
 ## Run
 
 ```bash
-pip install numpy pandas matplotlib seaborn
-python experiments/run_experiment.py
+pip install numpy pandas matplotlib seaborn openai pyyaml tqdm datasets
 ```
 
-Example:
+Set API keys:
 
 ```bash
-python experiments/run_experiment.py \
-  --security-params "4,6,8,10" \
-  --beta-values "0.0,0.5,1.0,2.0" \
-  --filter-budgets "1,2,4,8,16,32" \
-  --sq-budgets "1,2,4,8,16,32" \
-  --eval-prompts 32 \
-  --samples-per-prompt 512 \
-  --tv-samples 2048 \
-  --seed 7
+export OPENROUTER_API_KEY=<your-openrouter-key>
+export HF_TOKEN=<your-hf-token>          # optional, for HF prompts
+```
+
+Run the evaluation:
+
+```bash
+python experiments/run_llm_eval.py \
+    --models-config config/models.yaml \
+    --filter-budgets "1,4,16,64" \
+    --max-prompts 50 \
+    --output-dir outputs/llm_results
+```
+
+Generate plots:
+
+```bash
+python experiments/plotting.py --metrics outputs/llm_results/llm_metrics.csv
 ```
 
 ## Outputs
 
-- `outputs/metrics.csv`
-- `outputs/plots/harmful_mass_vs_budget.png`
-- `outputs/plots/harmful_mass_vs_capacity.png`
-- `outputs/plots/harmful_mass_vs_num_statistical_queries.png`
-- `outputs/plots/tv_vs_runtime.png`
-- `outputs/plots/beta_vs_residual_harmful_mass.png`
-- `outputs/plots/scaling_vs_security_param.png`
-
-`metrics.csv` includes scaling summaries and empirical floor estimates.
+- `outputs/llm_results/llm_metrics.csv`: per-prompt results for every (model, filter, budget) triple.
+- `outputs/llm_results/plots/harm_vs_budget_<model>.png`: harmful rate vs filter budget per model.
+- `outputs/llm_results/plots/harm_vs_budget_all_models.png`: combined overlay.
+- `outputs/llm_results/plots/harm_floor_by_model.png`: minimum harmful rate across all filters/budgets.
