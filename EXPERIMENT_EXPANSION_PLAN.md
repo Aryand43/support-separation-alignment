@@ -240,7 +240,7 @@ Attack types:
    - Add an `attack_type` label for each prompt and log it in the CSV. [file:17]  
 
 2. Sample size:
-   - Increase `samples_per_prompt` default to \(\ge 5\). [file:17]  
+   - Increase `samples_per_prompt` default to $\ge 5$. [file:17]  
 
 3. Conditions:
    - Keep three conditions:
@@ -254,7 +254,7 @@ Attack types:
 
 5. Plots:
    - Extend `plotresults` to create:
-     - Bar chart: harmful rate by paradigm \(\times\) condition. [file:17]  
+     - Bar chart: harmful rate by paradigm $\times$ condition. [file:17]  
      - Harm floor by paradigm (minimum over conditions) with simple confidence intervals (e.g., bootstrap).  
 
 ---
@@ -298,7 +298,7 @@ After implementing the above, run at least:
    - One run including `bounded_random` and white-box / SQ ablations.  
 
 4. **Phase B expanded**  
-   - Updated prompts, `samples_per_prompt` \(\ge 5\), all paradigms in `MODELREGISTRY`. [file:17]  
+   - Updated prompts, `samples_per_prompt` $\ge 5$, all paradigms in `MODELREGISTRY`. [file:17]  
 
 5. **Cost analysis**  
    - Run `experiments/cost_analysis.py` on all `llmmetrics.csv` outputs. [file:17]  

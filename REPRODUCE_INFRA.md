@@ -130,13 +130,13 @@ A separate `is_harmful(prompt, output)` function (implemented in `filters/metric
 ### 6.1 Selection policies (models, filters, prompts)
 
 - **Model selection:**
-  `run_llm_eval.py` loads the ordered list of models in `config/models.yaml` and iterates over them sequentially. For any prompt, the active model is simply the current element of this outer loop (deterministic round-robin, \(O(1)\) selection).
+  `run_llm_eval.py` loads the ordered list of models in `config/models.yaml` and iterates over them sequentially. For any prompt, the active model is simply the current element of this outer loop (deterministic round-robin, $O(1)$ selection).
 
 - **Filter selection:**
-  A fixed grid of filter types and budgets is defined in code/CLI, e.g. filter types = `["bounded", "whitebox", "sq"]`, budgets = `"1,4,16,64"`. `run_llm_eval.py` loops over all `(filter_type, filter_budget)` pairs for each model. For any prompt, the active filter is determined by this loop (again \(O(1)\) selection).
+  A fixed grid of filter types and budgets is defined in code/CLI, e.g. filter types = `["bounded", "whitebox", "sq"]`, budgets = `"1,4,16,64"`. `run_llm_eval.py` loops over all `(filter_type, filter_budget)` pairs for each model. For any prompt, the active filter is determined by this loop (again $O(1)$ selection).
 
 - **Prompt selection:**
-  `run_llm_eval.py` calls `load_prompts_from_hf(...)` once, obtains a list, and iterates over prompts in order. For any step, the active prompt is the current index in this list (deterministic round-robin, \(O(1)\) selection).
+  `run_llm_eval.py` calls `load_prompts_from_hf(...)` once, obtains a list, and iterates over prompts in order. For any step, the active prompt is the current index in this list (deterministic round-robin, $O(1)$ selection).
 
 ### 6.2 Single command to run all experiments
 

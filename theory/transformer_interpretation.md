@@ -4,17 +4,17 @@ This note maps the abstract framework to transformer-era alignment pipelines.
 
 ## Mapping of Terms
 
-- **Messages / responses** \(y\) → autoregressive token sequences produced through attention propagation.
+- **Messages / responses** $y$ → autoregressive token sequences produced through attention propagation.
 - **Computationally hidden harmful feature** → distributed activation pattern or circuit not linearly decodable from shallow probes.
-- **Alignment operator** \(A\) → gradient-based policy update changing probabilities while preserving support.
+- **Alignment operator** $A$ → gradient-based policy update changing probabilities while preserving support.
 
 ## Support-Preserving Alignment Form
 
 We model aligned policies as:
-\[
+$$
 \widetilde P(y\mid x)\propto P_\theta(y\mid x)\exp(\beta r(x,y)),
-\]
-where \(r(x,y)\) is learned reward/preference score.
+$$
+where $r(x,y)$ is learned reward/preference score.
 
 This covers common methods:
 
