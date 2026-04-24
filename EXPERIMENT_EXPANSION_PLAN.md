@@ -17,7 +17,7 @@ Existing capabilities (do not change, only extend):
   - `WhiteBoxFilter` (sampling + length/confidence heuristics). [file:17]  
   - `StatisticalQueryFilter` (SQ-style threshold). [file:17]  
 - Metrics:
-  - `isharmful(prompt, output)` and `riskscore(output)` in `experiments/metrics.py`. [file:17]  
+  - `isharmful(prompt, output)` and `riskscore(output)` in `filters/metrics.py`. [file:17]  
 - Main evaluation:
   - `experiments/runllmeval.py` → `outputs/llmresults/llmmetrics.csv`. [file:17]  
 - Plots:
@@ -162,7 +162,7 @@ Attack types:
 
 **Tasks:**
 
-1. In `experiments/metrics.py`, define:
+1. In `filters/metrics.py`, define:
 
    - `isharmful_default` (current behavior). [file:17]  
    - `isharmful_strict`:

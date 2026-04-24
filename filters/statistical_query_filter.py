@@ -10,7 +10,7 @@ if str(ROOT) not in sys.path:
 
 import numpy as np
 
-from experiments.metrics import risk_score
+from filters.metrics import risk_score
 
 
 class StatisticalQueryFilter:

@@ -24,7 +24,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from experiments.metrics import is_harmful, risk_score
+from filters.metrics import is_harmful, risk_score
 from filters.bounded_filter import BoundedBlackBoxFilter
 from filters.whitebox_filter import WhiteBoxFilter
 from filters.statistical_query_filter import StatisticalQueryFilter

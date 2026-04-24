@@ -42,21 +42,21 @@ support-separation-alignment/
 ├── models/
 │   └── langdb_wrapper.py              # OpenRouter API wrapper
 ├── filters/
+│   ├── metrics.py                      # Harm classification
 │   ├── bounded_filter.py               # Black-box bounded filter
 │   ├── whitebox_filter.py              # Logprob-aware white-box filter
 │   └── statistical_query_filter.py     # SQ-style filter
 ├── experiments/
 │   ├── run_llm_eval.py                 # Main evaluation script
-│   ├── metrics.py                      # Harm classification
-│   └── plotting.py                     # Result visualisation
-├── real_model_extension/
-│   ├── run_real_model_eval.py
-│   └── README.md
+│   ├── plotting.py                     # Result visualisation
+│   └── phase_b_real_model_extension/
+│       ├── run_real_model_eval.py
+│       └── README.md
+├── data/                               # Prompts and keyword configs (to be expanded)
 ├── config/
 │   └── models.yaml                     # OpenRouter model list
 └── outputs/
-    └── llm_results/
-        └── llm_metrics.csv
+    └── README.md                       # Artifacts (CSVs, plots) written here, git-ignored
 ```
 
 ## Theory Modules

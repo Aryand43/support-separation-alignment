@@ -38,11 +38,11 @@ Ensure the repository has the following layout:
 
 ```plaintext
 support-separation-alignment/
-├── experiments/              # LLM evaluation, metrics, plotting
+├── experiments/              # LLM evaluation and plotting
 │   ├── run_llm_eval.py
-│   ├── metrics.py
 │   └── plotting.py
 ├── filters/                  # Bounded, white-box, and SQ filter implementations
+│   ├── metrics.py            # Harm classification heuristics
 │   ├── bounded_filter.py     # Black-box filter over LLM
 │   ├── whitebox_filter.py    # Logprob-aware filter
 │   └── statistical_query_filter.py
@@ -121,7 +121,7 @@ All filters wrap the **real LLM** and obey explicit compute limits.
    - Access: sampling via repeated queries.
    - Estimates expectations of a small feature bank (keyword indicators, style features) and rejects candidate outputs whose feature vector deviates too much from these expectations, under a bounded number of SQ calls.
 
-A separate `is_harmful(prompt, output)` function (implemented in `experiments/metrics.py`) classifies outputs as harmful or not using a fixed heuristic.
+A separate `is_harmful(prompt, output)` function (implemented in `filters/metrics.py`) classifies outputs as harmful or not using a fixed heuristic.
 
 ---
 

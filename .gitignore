@@ -1,0 +1,10 @@
+# Local planning notes (not versioned)
+/CHANGES.md
+
+# Python
+__pycache__/
+*.py[cod]
+
+# Generated experiment outputs (this README is tracked)
+/outputs/**
+!/outputs/README.md
