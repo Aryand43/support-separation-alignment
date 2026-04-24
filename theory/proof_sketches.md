@@ -12,7 +12,7 @@ Hence harmful support mass persists for any strictly positive reweighting operat
 ## Theorem 2 (Computational Separation)
 
 Construct \(h_k\) via keyed PRF agreement and define \(P_k^\star\) as exact harmful-support eliminator.
-If a PPT filter achieved TV\(<\varepsilon_0\) to \(P_k^\star\), then residual harmful mass under filtering would be
+If a PPT filter achieved \(\mathrm{TV} < \varepsilon_0\) to \(P_k^\star\), then residual harmful mass under filtering would be
 uniformly tiny. Replacing PRF by random function yields a hybrid gap in residual harmful mass; this gap is converted
 into a non-negligible PRF distinguishing advantage, contradicting PRF security.
 
@@ -20,7 +20,7 @@ into a non-negligible PRF distinguishing advantage, contradicting PRF security.
 
 Use a fooling-set/SQ-dimension construction where multiple harmful-label worlds are nearly indistinguishable under at most
 \(m\) statistical queries. Since \(A\) preserves support, harmful candidates remain in the aligned distribution; an SQ-limited
-filter cannot identify all harmful regions, yielding residual error \(\Omega(d/m)\) on a hard distribution.
+filter cannot identify all harmful regions, yielding residual error \(\Omega\!\left(\frac{d}{m}\right)\) on a hard distribution.
 
 ## Theorem 4 (Residual Harmful Mass Lower Bound)
 

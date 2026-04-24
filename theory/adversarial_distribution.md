@@ -42,7 +42,7 @@ D_{X,n}(x) =
 
 In experiments, \(D_{X,n}\) is approximated by:
 
-- drawing candidate prompts from \([0, 2^n)\),
+- drawing candidate prompts from the interval \([0, 2^n)\),
 - selecting those passing an efficiently checkable adversarial score proxy,
 - evaluating all models on this subset.
 

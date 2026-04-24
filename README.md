@@ -14,13 +14,17 @@ The goal is **not** to claim alignment is impossible. The claim is that support-
 
 ## Framework
 
-An alignment operator $\mathcal{A}$ is **support-preserving** if:
+An alignment operator \(\mathcal{A}\) is **support-preserving** if:
 
-$$P_\theta(y \mid x) > 0 \;\Rightarrow\; (\mathcal{A}\, P_\theta)(y \mid x) > 0.$$
+\[
+P_\theta(y \mid x) > 0 \;\Rightarrow\; (\mathcal{A}\, P_\theta)(y \mid x) > 0.
+\]
 
 This covers RLHF, PPO-style policy reweighting, DPO-like preference reweighting, and generic reward tilting:
 
-$$\widetilde{P}(y \mid x) \propto P_\theta(y \mid x) \exp\bigl(\beta\, r(x,y)\bigr).$$
+\[
+\widetilde{P}(y \mid x) \propto P_\theta(y \mid x) \exp\bigl(\beta\, r(x,y)\bigr).
+\]
 
 ## Repository Structure
 
