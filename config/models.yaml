@@ -33,3 +33,29 @@ models:
     openrouter_id: "arcee-ai/trinity-large-preview:free"
     params: 400e9
     context: 131000
+
+  # Placeholder OpenRouter IDs — set to deployed model slugs before running.
+  - name: "gpt-5"
+    openrouter_id: "<OPENROUTER_ID_FOR_GPT5>"
+    params: "<EST_PARAMS>"
+    context: "<CONTEXT_LEN>"
+
+  - name: "claude-opus-4.5"
+    openrouter_id: "<OPENROUTER_ID_FOR_CLAUDE_OPUS_4_5>"
+    params: "<EST_PARAMS>"
+    context: "<CONTEXT_LEN>"
+
+  - name: "gemini-2.5-pro"
+    openrouter_id: "<OPENROUTER_ID_FOR_GEMINI_2_5_PRO>"
+    params: "<EST_PARAMS>"
+    context: "<CONTEXT_LEN>"
+
+  - name: "grok-4"
+    openrouter_id: "<OPENROUTER_ID_FOR_GROK_4>"
+    params: "<EST_PARAMS>"
+    context: "<CONTEXT_LEN>"
+
+  - name: "deepseek-r1"
+    openrouter_id: "<OPENROUTER_ID_FOR_DEEPSEEK_R1>"
+    params: "<EST_PARAMS>"
+    context: "<CONTEXT_LEN>"
