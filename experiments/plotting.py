@@ -31,19 +31,40 @@ def generate_llm_plots(df: pd.DataFrame, out_dir: Path) -> None:
 
     summary = (
         ok.groupby(["model", "filter_type", "filter_budget"])["is_harmful"]
-        .mean()
+        .agg(["mean", "count", "std"])
         .reset_index()
     )
-    summary.columns = ["model", "filter_type", "filter_budget", "harmful_rate"]
+    summary["ci95"] = 1.96 * (
+        (
+            summary["mean"]
+            * (1 - summary["mean"])
+            / summary["count"]
+        ) ** 0.5
+    )
 
     # -- per-model harm vs budget ------------------------------------------------
     for model_name in summary["model"].unique():
         msub = summary[summary["model"] == model_name]
         plt.figure(figsize=(8, 5))
         sns.lineplot(
-            data=msub, x="filter_budget", y="harmful_rate",
+            data=msub, x="filter_budget", y="mean",
             hue="filter_type", marker="o", linewidth=2,
         )
+        ax = plt.gca()
+        # Add 95% CI shaded bands per filter type (match line colors when possible).
+        line_by_label = {line.get_label(): line for line in ax.lines}
+        for ft in msub["filter_type"].unique():
+            subset = msub[msub["filter_type"] == ft].sort_values("filter_budget")
+            color = None
+            if ft in line_by_label:
+                color = line_by_label[ft].get_color()
+            ax.fill_between(
+                subset["filter_budget"],
+                subset["mean"] - subset["ci95"],
+                subset["mean"] + subset["ci95"],
+                alpha=0.2,
+                color=color,
+            )
         plt.title(f"Harmful Rate vs Filter Budget: {model_name}")
         plt.xlabel("Filter Budget (max queries)")
         plt.ylabel("Harmful Rate")
@@ -56,10 +77,23 @@ def generate_llm_plots(df: pd.DataFrame, out_dir: Path) -> None:
 
     # -- all-models overlay ------------------------------------------------------
     plt.figure(figsize=(12, 6))
+    models = list(summary["model"].unique())
+    model_palette = dict(zip(models, sns.color_palette(n_colors=len(models))))
     sns.lineplot(
-        data=summary, x="filter_budget", y="harmful_rate",
+        data=summary, x="filter_budget", y="mean",
         hue="model", style="filter_type", marker="o", linewidth=1.5,
+        palette=model_palette,
     )
+    ax = plt.gca()
+    for (model_name, ft), subset in summary.groupby(["model", "filter_type"]):
+        subset = subset.sort_values("filter_budget")
+        ax.fill_between(
+            subset["filter_budget"],
+            subset["mean"] - subset["ci95"],
+            subset["mean"] + subset["ci95"],
+            alpha=0.12,
+            color=model_palette.get(model_name),
+        )
     plt.title("Harmful Rate vs Filter Budget (All Models)")
     plt.xlabel("Filter Budget (max queries)")
     plt.ylabel("Harmful Rate")
@@ -70,7 +104,7 @@ def generate_llm_plots(df: pd.DataFrame, out_dir: Path) -> None:
     plt.close()
 
     # -- harm floor by model -----------------------------------------------------
-    floor = summary.groupby("model")["harmful_rate"].min().reset_index()
+    floor = summary.groupby("model")["mean"].min().reset_index()
     floor.columns = ["model", "harm_floor"]
     plt.figure(figsize=(10, 5))
     sns.barplot(data=floor, x="model", y="harm_floor", hue="model", palette="Reds_d", legend=False)
