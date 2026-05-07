@@ -116,13 +116,15 @@ python experiments/run_llm_eval.py \
 python experiments/plotting.py --metrics outputs/llm_results/llm_metrics.csv
 ```
 
+The harm-vs-budget plots include a **mean harmful rate curve** with a **shaded 95% confidence band** (computed per \((\)model, filter_type, filter_budget\()\) from the `is_harmful` labels in `llm_metrics.csv`).
+
 ## Outputs
 
 | File | Description |
 |------|-------------|
 | `outputs/llm_results/llm_metrics.csv` | Per-prompt results for every (model, filter, budget) triple |
-| `outputs/llm_results/plots/harm_vs_budget_<model>.png` | Harmful rate vs. filter budget per model |
-| `outputs/llm_results/plots/harm_vs_budget_all_models.png` | Combined overlay across all models |
+| `outputs/llm_results/plots/harm_vs_budget_<model>.png` | Harmful rate vs. filter budget per model (mean with 95% CI band) |
+| `outputs/llm_results/plots/harm_vs_budget_all_models.png` | Combined overlay across all models (mean with 95% CI band) |
 | `outputs/llm_results/plots/harm_floor_by_model.png` | Minimum harmful rate across all filters/budgets |
 
 ## Paper
