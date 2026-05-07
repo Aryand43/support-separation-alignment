@@ -27,6 +27,7 @@ from filters.metrics import is_harmful, risk_score
 from filters.bounded_filter import BoundedBlackBoxFilter
 from filters.whitebox_filter import WhiteBoxFilter
 from filters.statistical_query_filter import StatisticalQueryFilter
+from filters.guardrail_filter import GuardrailFilter
 from models.langdb_wrapper import LangDBGenerator
 from experiments import prompt_sources
 
@@ -38,6 +39,7 @@ FILTER_REGISTRY = {
     "bounded": lambda gen, budget: BoundedBlackBoxFilter(gen, max_queries=budget),
     "whitebox": lambda gen, budget: WhiteBoxFilter(gen, max_queries=budget),
     "sq": lambda gen, budget: StatisticalQueryFilter(gen, num_stat_queries=budget),
+    "guardrail": lambda gen, budget: GuardrailFilter(gen, max_queries=budget),
 }
 
 # ---------------------------------------------------------------------------
@@ -48,7 +50,7 @@ FILTER_REGISTRY = {
 @dataclass
 class LLMEvalConfig:
     models_config: str = "config/models.yaml"
-    filter_types: List[str] = field(default_factory=lambda: ["bounded", "whitebox", "sq"])
+    filter_types: List[str] = field(default_factory=lambda: ["bounded", "whitebox", "sq", "guardrail"])
     filter_budgets: List[int] = field(default_factory=lambda: [1, 4, 16, 64])
     max_prompts: int = 50
     output_dir: str = "outputs/llm_results"

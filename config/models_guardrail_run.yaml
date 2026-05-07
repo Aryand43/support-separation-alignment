@@ -1,0 +1,15 @@
+models:
+  - name: "gemma-4-26b"
+    openrouter_id: "google/gemma-4-26b-a4b-it:free"
+    params: 26e9
+    context: 131000
+
+  - name: "nemotron-3-super-120b"
+    openrouter_id: "nvidia/nemotron-3-super-120b-a12b:free"
+    params: 120e9
+    context: 262000
+
+  - name: "nemotron-nano-9b"
+    openrouter_id: "nvidia/nemotron-nano-9b-v2:free"
+    params: 9e9
+    context: 131000

@@ -11,7 +11,7 @@ OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1"
 
 MAX_RETRIES = 6
 RETRY_BACKOFF = 10.0
-CALL_INTERVAL = 5.0
+CALL_INTERVAL = 1.0
 
 
 class LangDBGenerator:
